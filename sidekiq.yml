@@ -1,0 +1,4 @@
+:schedule:
+  payment_check:
+    cron: "0 0 * * *" # Executa diariamente à meia-noite
+    class: PaymentCheckJob

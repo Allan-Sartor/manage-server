@@ -1,0 +1,24 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  DisabledByDefault: false
+  NewCops: enable
+  TargetRubyVersion: 3.0.0
+  Exclude:
+    - db/schema.rb
+    - vendor/**/*
+
+Layout/FirstArgumentIndentation:
+  Exclude:
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/WordArray:
+  EnforcedStyle: brackets
