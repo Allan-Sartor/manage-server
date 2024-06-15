@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  host: <%= ENV["POSTGRES_HOST_DEV"] %>
+  username: <%= ENV["POSTGRES_USER_DEV"] %>
+  password: <%= ENV["POSTGRES_PASSWORD_DEV"] %>
+  pool: 5
+  timeout: 5000
+
+development:
+  <<: *default
+  database: manage_server_development
+
+test:
+  <<: *default
+  database: manage_server_test
+
+production:
+  database: manage_server_production
+  username: manage_server
+  password: <%= ENV["SERVER_DATABASE_PASSWORD"] %>
