@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: manage_server_production
+    networks:
+      - backend
+
+  redis:
+    image: redis:6.2
+    networks:
+      - backend
+
+  sidekiq:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+    command: bundle exec sidekiq
+    volumes:
+      - ..:/myapp
+    networks:
+      - backend
+    depends_on:
+      - db
+      - redis
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+    command: bundle exec rails s -b '0.0.0.0' -e production
+    volumes:
+      - ..:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - RAILS_ENV=production
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge

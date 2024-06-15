@@ -10,14 +10,6 @@ services:
       POSTGRES_DB: manage_server_development
     networks:
       - backend
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
 
   redis:
     image: redis:6.2
@@ -25,44 +17,34 @@ services:
       - backend
 
   sidekiq:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
     command: bundle exec sidekiq
     volumes:
-      - .:/myapp
+      - ..:/myapp
     networks:
       - backend
     depends_on:
       - db
       - redis
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
-        reservations:
-          cpus: '0.50'
-          memory: 512M
 
   web:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
     command: bundle exec rails s -b '0.0.0.0' -e development
     volumes:
-      - .:/myapp
+      - ..:/myapp
     ports:
       - "3000:3000"
     depends_on:
       - db
       - redis
+    environment:
+      - RAILS_ENV=development
     networks:
       - backend
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
-        reservations:
-          cpus: '0.50'
-          memory: 512M
 
 volumes:
   pgdata:

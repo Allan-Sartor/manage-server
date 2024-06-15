@@ -1,0 +1,40 @@
+# Usar uma imagem base do Ruby
+FROM ruby:3.0.0
+
+# Instalar dependências do sistema
+RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
+
+# Configurar o diretório de trabalho
+WORKDIR /myapp
+
+# Copiar o Gemfile e o Gemfile.lock
+COPY Gemfile Gemfile.lock ./
+
+# Instalar gems
+RUN bundle install --without development test
+
+# Copiar o restante do código do aplicativo
+COPY . .
+
+# Instalar o yarn para gerenciar pacotes JS
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && apt-get install -y yarn
+
+# Compilar ativos
+RUN RAILS_ENV=production bundle exec rake assets:precompile
+
+# Copiar o script entrypoint.sh
+COPY docker/entrypoint.sh /usr/bin/entrypoint.sh
+
+# Adicionar permissão executável ao entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+
+# Definir entrypoint
+ENTRYPOINT ["entrypoint.sh"]
+
+# Expor a porta que o Rails usa
+EXPOSE 3000
+
+# O comando padrão para iniciar o servidor Rails
+CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0", "-e", "production"]

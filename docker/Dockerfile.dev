@@ -21,12 +21,13 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install -y yarn
 
-# Compilar ativos
-RUN bundle exec rake assets:precompile
+# Copiar o script entrypoint.sh
+COPY docker/entrypoint.sh /usr/bin/entrypoint.sh
 
-# Adicionar um script para corrigir problemas do PID do servidor
-RUN echo "#!/bin/sh\nrm -f tmp/pids/server.pid\nexec \"\$@\"" > /usr/bin/entrypoint.sh
+# Adicionar permissão executável ao entrypoint.sh
 RUN chmod +x /usr/bin/entrypoint.sh
+
+# Definir entrypoint
 ENTRYPOINT ["entrypoint.sh"]
 
 # Expor a porta que o Rails usa
