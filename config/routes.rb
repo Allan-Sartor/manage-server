@@ -1,7 +1,12 @@
 Rails.application.routes.draw do
   mount_devise_token_auth_for 'User', at: 'auth'
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  mount Sidekiq::Web => '/sidekiq' # Montar a interface do Sidekiq
 
-  # Defines the root path route ("/")
-  # root "articles#index"
+  resources :users, only: [:show, :update]
+  resources :plans, only: [:index, :show]
+  resources :business_units
+  resources :clients
+  resources :transactions
+  resources :inventory_items
+  resources :payments, only: [:create]
 end
