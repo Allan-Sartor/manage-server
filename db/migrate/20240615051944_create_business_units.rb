@@ -6,8 +6,5 @@ class CreateBusinessUnits < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
-
-    # Índice na chave estrangeira
-    add_index :business_units, :user_id
   end
 end

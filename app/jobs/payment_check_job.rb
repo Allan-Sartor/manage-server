@@ -3,7 +3,7 @@
 class PaymentCheckJob < ApplicationJob
   queue_as :default
 
-  def perform(*_args)
-    User.check_payment_statuses
+  def perform
+    BusinessUnit.find_each(&:check_payment_status)
   end
 end

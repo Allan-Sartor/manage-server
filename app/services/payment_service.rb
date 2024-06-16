@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PaymentService
-  def initialize(user, params)
-    @user = user
+  def initialize(business_unit, params)
+    @business_unit = business_unit
     @params = params
     @sdk = Mercadopago::SDK.new(ENV.fetch('MERCADO_PAGO_ACCESS_TOKEN', nil))
   end
@@ -47,10 +47,15 @@ class PaymentService
 
   def handle_payment_response(payment)
     if payment[:status] == 'approved'
-      @user.update(payment_status: 'paid', payment_due_date: 1.month.from_now)
+      update_business_unit_payment_status
       { status: 'approved', payment_id: payment[:id] }
     else
-      { status: 'failure', error: payment[:error] }
+      { status: 'failure', error: payment[:error] || 'Erro desconhecido' }
     end
+  end
+
+  def update_business_unit_payment_status
+    duration = @business_unit.plan.duration == 'annual' ? 1.year.from_now : 1.month.from_now
+    @business_unit.update(payment_status: 'paid', payment_due_date: duration, notification_date: duration - 15.days)
   end
 end

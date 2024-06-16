@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_15_051950) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_16_024100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,6 +19,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_051950) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "plan_id", null: false
+    t.timestamptz "payment_due_date"
+    t.timestamptz "notification_date"
     t.index ["user_id"], name: "index_business_units_on_user_id"
   end
 
@@ -84,18 +87,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_051950) do
     t.json "tokens"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "payment_status", default: "pending"
-    t.datetime "payment_due_date"
-    t.integer "plan_id"
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["plan_id"], name: "index_users_on_plan_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "business_units", "plans"
   add_foreign_key "business_units", "users"
   add_foreign_key "clients", "business_units"
   add_foreign_key "inventory_items", "business_units"
   add_foreign_key "transactions", "business_units"
-  add_foreign_key "users", "plans"
 end

@@ -1,34 +1,25 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  # Módulos do Devise para autenticação
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # Devise Token Auth para autenticação baseada em token
   include DeviseTokenAuth::Concerns::User
 
-  belongs_to :plan
+  # Associações
   has_one :business_unit, dependent: :destroy
 
-  after_create :set_initial_payment_due_date
+  # Callbacks
+  # Define a data de expiração do teste gratuito após a criação do usuário
+  after_create :set_trial_period
 
-  def set_initial_payment_due_date
-    update(payment_due_date: 7.days.from_now)
+  def set_trial_period
+    update(trial_end_date: 7.days.from_now)
   end
 
   def active?
-    payment_status == 'paid' && payment_due_date > Time.current
-  end
-
-  def self.check_payment_statuses
-    where(payment_due_date: ...Time.current).where(payment_status: 'paid').find_each do |user|
-      user.update(payment_status: 'overdue')
-      UserMailer.payment_overdue(user).deliver_later
-    end
-
-    where(payment_due_date: ...7.days.ago).where(payment_status: 'overdue').find_each do |user|
-      user.update(payment_status: 'canceled')
-      user.business_unit.update(active: false)
-      UserMailer.service_canceled(user).deliver_later
-    end
+    business_unit.present? && business_unit.active?
   end
 end
