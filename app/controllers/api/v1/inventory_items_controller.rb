@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class InventoryItemsController < ApplicationController
+class Api::V1::InventoryItemsController < ApplicationController
   before_action :authenticate_user!
 
   def index

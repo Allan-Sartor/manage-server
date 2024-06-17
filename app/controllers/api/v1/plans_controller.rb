@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PlansController < ApplicationController
+class Api::V1::PlansController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
 
   def index

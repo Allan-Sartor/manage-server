@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PaymentsController < ApplicationController
+class Api::V1::PaymentsController < ApplicationController
   before_action :authenticate_user!
 
   def create

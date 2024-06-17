@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class BusinessUnitsController < ApplicationController
+class Api::V1::BusinessUnitsController < ApplicationController
   before_action :authenticate_user!
 
   def index
@@ -40,6 +40,6 @@ class BusinessUnitsController < ApplicationController
   private
 
   def business_unit_params
-    params.require(:business_unit).permit(:name)
+    params.require(:business_unit).permit(:name, :plan_id, :cnpj, :state_registration, :municipal_registration, :legal_name, :trade_name)
   end
 end
