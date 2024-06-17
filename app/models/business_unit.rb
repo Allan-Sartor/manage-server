@@ -10,51 +10,60 @@ class BusinessUnit < ApplicationRecord
 
   # Validações
   validates :name, presence: true
+  validates :cnpj, presence: true, uniqueness: true
+  validates :state_registration, presence: true
+  validates :municipal_registration, presence: true
+  validates :legal_name, presence: true
+  validates :trade_name, presence: true
 
   # Callbacks
-  # Define a data de vencimento inicial do pagamento após a criação da unidade de negócios
-  after_create :set_initial_payment_due_date
+  after_create :set_initial_payment_due_date, :set_trial_period
 
-  # Define a data de vencimento inicial do pagamento com base na duração do plano (mensal ou anual)
-  # e permite que o usuário escolha o dia de vencimento
   def set_initial_payment_due_date(payment_due_day = nil)
-    duration = plan.duration == 'annual' ? 1.year.from_now : 1.month.from_now
-    due_date = payment_due_day ? Time.zone.today.next_month.change(day: payment_due_day) : duration
+    duration = case plan.periodicity
+               when 'annual'
+                 1.year.from_now
+               when 'monthly'
+                 1.month.from_now
+               else
+                 14.days.from_now
+               end
+    due_date = payment_due_day ? duration.change(day: payment_due_day) : duration
     update(payment_due_date: due_date, notification_date: due_date - 15.days)
   end
 
-  # Verifica se a unidade de negócios está ativa com base no status do pagamento e na data de vencimento
+  def set_trial_period
+    update(trial_end_date: 14.days.from_now) if plan.name == 'Trial'
+  end
+
   def active?
+    return false if trial_end_date && trial_end_date < Time.current
+
     payment_status == 'paid' && payment_due_date > Time.current
   end
 
-  # Verifica e atualiza o status de pagamento da unidade de negócios
   def check_payment_status
     return unless payment_due_date < Time.current
 
-    # Se o pagamento estiver atrasado, atualiza o status para 'overdue'
     update(payment_status: 'overdue') if payment_status == 'paid'
-
-    # Se o pagamento estiver atrasado por mais de 15 dias, suspende o serviço
     return unless payment_due_date < 15.days.ago
 
     update(payment_status: 'suspended')
     UserMailer.service_suspended(user).deliver_later
   end
 
-  # Método de classe para gerar pagamentos mensais para todas as unidades de negócios
   def self.generate_monthly_payments
     find_each do |business_unit|
       next unless business_unit.payment_due_date <= Time.current
 
       payment_service = PaymentService.new(business_unit, {
                                              amount: business_unit.plan.price,
-                                             description: "Assinatura para #{business_unit.plan.name}",
-                                             payment_method_id: 'pix', # Ou o método de pagamento padrão
+                                             description: "Subscription for #{business_unit.plan.name}",
+                                             payment_method_id: 'pix',
                                              email: business_unit.user.email,
                                              identification_type: 'CPF',
-                                             identification_number: business_unit.user.cpf, # Ajuste conforme necessário
-                                             token: business_unit.user.payment_token, # Ajuste conforme necessário
+                                             identification_number: business_unit.user.cpf,
+                                             token: business_unit.user.payment_token,
                                              installments: 1
                                            })
 
@@ -68,5 +77,37 @@ class BusinessUnit < ApplicationRecord
         UserMailer.payment_failed(business_unit.user, result[:error]).deliver_later
       end
     end
+  end
+
+  def total_income
+    transactions.income.sum(:amount)
+  end
+
+  def total_expense
+    transactions.expense.sum(:amount)
+  end
+
+  def total_compra
+    transactions.compra.sum(:amount)
+  end
+
+  def total_venda
+    transactions.venda.sum(:amount)
+  end
+
+  def total_despesa
+    transactions.despesa.sum(:amount)
+  end
+
+  def total_receita
+    transactions.receita.sum(:amount)
+  end
+
+  def total_transactions_by_payment_type(payment_type)
+    transactions.where(payment_type: payment_type).sum(:amount)
+  end
+
+  def total_transactions_by_scope(transaction_scope)
+    transactions.where(transaction_scope: transaction_scope).sum(:amount)
   end
 end
