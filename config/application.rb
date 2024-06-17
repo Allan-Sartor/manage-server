@@ -14,17 +14,23 @@ module ManageServer
     # Configura o Sidekiq como o adaptador de fila de jobs
     config.active_job.queue_adapter = :sidekiq
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # cofiguração session store
+    config.session_store :cookie_store, key: '_interslice_session'
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use config.session_store, config.session_options
 
-    # Only loads a smaller set of middleware suitable for API only apps.
-    # Middleware like session, flash, cookies can be added back manually.
-    # Skip views, helpers and assets when generating a new resource.
+    # Adiciona arquivos de tradução personalizados
+    config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
+
+    # Define os locais disponíveis
+    I18n.available_locales = [:"en-US", :"pt-BR"]
+
+    # Define o locale padrão
+    I18n.default_locale = :"pt-BR"
+
+    # Devise
+    config.action_mailer.default_url_options = { host: 'localhost:3001' }
+
     config.api_only = true
   end
 end

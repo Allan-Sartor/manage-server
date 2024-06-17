@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_16_024100) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,6 +22,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_16_024100) do
     t.integer "plan_id", null: false
     t.timestamptz "payment_due_date"
     t.timestamptz "notification_date"
+    t.timestamptz "trial_end_date"
+    t.string "cnpj"
+    t.string "state_registration"
+    t.string "municipal_registration"
+    t.string "legal_name"
+    t.string "trade_name"
     t.index ["user_id"], name: "index_business_units_on_user_id"
   end
 
@@ -53,6 +59,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_16_024100) do
     t.decimal "price", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "discount", precision: 5, scale: 2, default: "0.0"
+    t.string "periodicity", default: "monthly"
+    t.string "duration", default: "monthly", null: false
   end
 
   create_table "transactions", force: :cascade do |t|

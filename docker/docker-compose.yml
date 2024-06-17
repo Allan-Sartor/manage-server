@@ -27,6 +27,8 @@ services:
     depends_on:
       - db
       - redis
+    environment:
+      REDIS_URL: redis://redis:6379/0
 
   web:
     build:
@@ -41,7 +43,8 @@ services:
       - db
       - redis
     environment:
-      - RAILS_ENV=development
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
     networks:
       - backend
 
