@@ -6,7 +6,7 @@ class Transaction < ApplicationRecord
   belongs_to :inventory_item, optional: true
 
   # Tipos válidos de transações
-  TRANSACTION_TYPES = ['income', 'expense', 'dividends', 'inventory_adjustment'].freeze
+  TRANSACTION_TYPES = ['income', 'expense', 'dividends', 'inventory_adjustment', 'product_sale'].freeze
 
   # Escopos válidos de transações
   TRANSACTION_SCOPES = ['compra', 'venda', 'despesa', 'receita'].freeze
