@@ -7,7 +7,8 @@ class Plan < ApplicationRecord
   validates :duration, presence: true, inclusion: { in: ['trial', 'monthly', 'annual'] }
   validates :discount, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, if: :annual_plan?
   validates :periodicity, presence: true, inclusion: { in: ['trial', 'monthly', 'annual'] }
-
+  validates :max_business_units, presence: true, numericality: { greater_than_or_equal_to: 1 }
+  
   # Associações
   has_many :business_units
 

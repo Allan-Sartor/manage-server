@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_18_021619) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -28,6 +28,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
     t.string "municipal_registration"
     t.string "legal_name"
     t.string "trade_name"
+    t.index ["cnpj", "user_id"], name: "index_business_units_on_cnpj_and_user_id", unique: true
     t.index ["user_id"], name: "index_business_units_on_user_id"
   end
 
@@ -41,6 +42,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
     t.index ["email"], name: "index_clients_on_email"
   end
 
+  create_table "inventory_categories", force: :cascade do |t|
+    t.string "name"
+    t.bigint "business_unit_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["business_unit_id"], name: "index_inventory_categories_on_business_unit_id"
+  end
+
   create_table "inventory_items", force: :cascade do |t|
     t.string "name", null: false
     t.integer "quantity", null: false
@@ -49,7 +58,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
     t.bigint "business_unit_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "inventory_category_id", null: false
     t.index ["business_unit_id"], name: "index_inventory_items_on_business_unit_id"
+    t.index ["inventory_category_id"], name: "index_inventory_items_on_inventory_category_id"
     t.index ["item_type"], name: "index_inventory_items_on_item_type"
     t.index ["name"], name: "index_inventory_items_on_name"
   end
@@ -62,6 +73,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
     t.decimal "discount", precision: 5, scale: 2, default: "0.0"
     t.string "periodicity", default: "monthly"
     t.string "duration", default: "monthly", null: false
+    t.integer "max_business_units", default: 1
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -72,7 +84,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
     t.bigint "business_unit_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "client_id", null: false
+    t.string "status"
     t.index ["business_unit_id"], name: "index_transactions_on_business_unit_id"
+    t.index ["client_id"], name: "index_transactions_on_client_id"
     t.index ["payment_type"], name: "index_transactions_on_payment_type"
     t.index ["transaction_type"], name: "index_transactions_on_transaction_type"
   end
@@ -104,6 +119,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_010013) do
   add_foreign_key "business_units", "plans"
   add_foreign_key "business_units", "users"
   add_foreign_key "clients", "business_units"
+  add_foreign_key "inventory_categories", "business_units"
   add_foreign_key "inventory_items", "business_units"
+  add_foreign_key "inventory_items", "inventory_categories"
   add_foreign_key "transactions", "business_units"
+  add_foreign_key "transactions", "clients"
 end

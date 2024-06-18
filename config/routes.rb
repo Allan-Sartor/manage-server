@@ -6,6 +6,7 @@
 require 'api_constraints'
 
 Rails.application.routes.draw do
+  resources :inventory_categories
   namespace :api, defaults: { format: :json } do
     # Monta as rotas do Devise Token Auth para o modelo User no caminho "/api/auth"
     mount_devise_token_auth_for 'User', at: 'auth'

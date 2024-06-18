@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Módulo: FormatHelper
 #
 # O módulo `FormatHelper` fornece funções auxiliares para formatação de mensagens e serialização de objetos em formato JSON.

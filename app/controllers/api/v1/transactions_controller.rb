@@ -1,45 +1,64 @@
 # frozen_string_literal: true
 
-class Api::V1::TransactionsController < ApplicationController
-  before_action :authenticate_user!
+module Api
+  module V1
+    class TransactionsController < ApplicationController
+      before_action :authenticate_api_user!
 
-  def index
-    @transactions = current_user.business_unit.transactions
-    render json: @transactions
-  end
+      def index
+        @transactions = current_business_unit.transactions
+        render json: @transactions
+      end
 
-  def show
-    @transaction = Transaction.find(params[:id])
-    render json: @transaction
-  end
+      def show
+        @transaction = current_business_unit.transactions.find(params[:id])
+        render json: @transaction
+      end
 
-  def create
-    @transaction = current_user.business_unit.transactions.build(transaction_params)
-    if @transaction.save
-      render json: @transaction, status: :created
-    else
-      render json: @transaction.errors, status: :unprocessable_entity
+      def create
+        @transaction = current_business_unit.transactions.build(transaction_params)
+
+        if @transaction.transaction_scope == 'venda' && !valid_inventory_item?(@transaction)
+          render json: { error: 'Insufficient inventory for the selected item.' }, status: :unprocessable_entity
+          return
+        end
+
+        if @transaction.save
+          render json: @transaction, status: :created
+        else
+          render json: @transaction.errors, status: :unprocessable_entity
+        end
+      end
+
+      def update
+        @transaction = current_business_unit.transactions.find(params[:id])
+        if @transaction.update(transaction_params)
+          render json: @transaction
+        else
+          render json: @transaction.errors, status: :unprocessable_entity
+        end
+      end
+
+      def destroy
+        @transaction = current_business_unit.transactions.find(params[:id])
+        @transaction.destroy
+        head :no_content
+      end
+
+      private
+
+      def transaction_params
+        params.require(:transaction).permit(:amount, :description, :transaction_type, :payment_type, :status, :client_id, :inventory_item_id, :transaction_scope)
+      end
+
+      def current_business_unit
+        @current_business_unit ||= current_api_user.business_units.find(params[:business_unit_id])
+      end
+
+      def valid_inventory_item?(transaction)
+        inventory_item = transaction.inventory_item
+        inventory_item.present? && inventory_item.quantity >= transaction.amount
+      end
     end
-  end
-
-  def update
-    @transaction = Transaction.find(params[:id])
-    if @transaction.update(transaction_params)
-      render json: @transaction
-    else
-      render json: @transaction.errors, status: :unprocessable_entity
-    end
-  end
-
-  def destroy
-    @transaction = Transaction.find(params[:id])
-    @transaction.destroy
-    head :no_content
-  end
-
-  private
-
-  def transaction_params
-    params.require(:transaction).permit(:amount, :description, :transaction_type, :payment_type)
   end
 end

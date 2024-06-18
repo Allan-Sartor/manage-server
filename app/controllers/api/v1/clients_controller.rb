@@ -1,8 +1,8 @@
 class Api::V1::ClientsController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_api_user!
 
   def index
-    @clients = current_user.business_unit.clients
+    @clients = current_api_user.business_unit.clients
     render json: @clients
   end
 
@@ -12,7 +12,7 @@ class Api::V1::ClientsController < ApplicationController
   end
 
   def create
-    @client = current_user.business_unit.clients.build(client_params)
+    @client = current_api_user.business_unit.clients.build(client_params)
     if @client.save
       render json: @client, status: :created
     else

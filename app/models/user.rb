@@ -9,7 +9,16 @@ class User < ApplicationRecord
   include DeviseTokenAuth::Concerns::User
 
   # Associações
-  has_one :business_unit, dependent: :destroy
+  has_many :business_units, dependent: :destroy
+
+  def can_create_business_unit?
+    business_units.count < plan.max_business_units
+  end
+
+  # Método para verificar se o usuário pode acessar funcionalidades avançadas
+  def has_advanced_features?
+    %w[Médio Médio Anual Premium Premium Anual].include?(plan.name)
+  end
 
   def active?
     business_unit.present? && business_unit.active?

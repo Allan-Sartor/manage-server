@@ -1,0 +1,22 @@
+pt-BR:
+  errors:
+    format: ! '%{attribute} %{message}'
+    messages:
+      taken: "já está em uso!"
+      accepted: Deve ser aceito
+      blank: Não pode ficar em branco
+      present: Deve ficar em branco
+      confirmation: Não é igual a %{attribute}
+      empty: Não pode ficar vazio
+      equal_to: Deve ser igual a %{count}
+      even: Deve ser par
+      exclusion: Não está disponível
+      greater_than: Deve ser maior que %{count}
+      greater_than_or_equal_to: Deve ser maior ou igual a %{count}
+      inclusion: Não está incluído na lista
+      invalid: Não é válido
+      less_than: Deve ser menor que %{count}
+      password_strong: Sua senha deve conter pelo menos 8 caracteres, dentre eles 1 letra maiúscula, 1 letra minúscula, 1 caractere especial e um número
+      password_same: A nova senha deve ser diferente da atual
+      max_file_size: O arquivo precisa ter menos que 2.5MB
+      title_of_category_not_blank: O titulo da categoria não pode ficar em branco!

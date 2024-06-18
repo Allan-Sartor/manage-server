@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+# app/models/business_unit.rb
+
 class BusinessUnit < ApplicationRecord
+  include CnpjValidator
+
   # Associações
   belongs_to :user
   belongs_to :plan
@@ -8,16 +12,25 @@ class BusinessUnit < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :inventory_items, dependent: :destroy
 
+  # Callbacks
+  before_validation :normalize_cnpj
+  before_create :check_business_unit_limit
+
   # Validações
   validates :name, presence: true
-  validates :cnpj, presence: true, uniqueness: true
+  validates :cnpj, presence: true, uniqueness: { scope: :user_id }, on: :create
   validates :state_registration, presence: true
   validates :municipal_registration, presence: true
   validates :legal_name, presence: true
   validates :trade_name, presence: true
+  validate :cnpj_must_be_valid
 
   # Callbacks
   after_create :set_initial_payment_due_date, :set_trial_period
+
+  def normalize_cnpj
+    self.cnpj = CnpjValidator.normalize(cnpj)
+  end
 
   def set_initial_payment_due_date(payment_due_day = nil)
     duration = case plan.periodicity

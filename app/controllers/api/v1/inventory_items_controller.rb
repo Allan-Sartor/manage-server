@@ -1,45 +1,29 @@
 # frozen_string_literal: true
 
-class Api::V1::InventoryItemsController < ApplicationController
-  before_action :authenticate_user!
+class InventoryItemsController < ApplicationController
+  before_action :authenticate_api_user!
 
   def index
-    @inventory_items = current_user.business_unit.inventory_items
-    render json: @inventory_items
-  end
-
-  def show
-    @inventory_item = InventoryItem.find(params[:id])
-    render json: @inventory_item
+    @items = current_business_unit.inventory_items
+    render json: @items
   end
 
   def create
-    @inventory_item = current_user.business_unit.inventory_items.build(inventory_item_params)
-    if @inventory_item.save
-      render json: @inventory_item, status: :created
+    @item = current_business_unit.inventory_items.new(item_params)
+    if @item.save
+      render json: @item, status: :created
     else
-      render json: @inventory_item.errors, status: :unprocessable_entity
+      render json: @item.errors, status: :unprocessable_entity
     end
-  end
-
-  def update
-    @inventory_item = InventoryItem.find(params[:id])
-    if @inventory_item.update(inventory_item_params)
-      render json: @inventory_item
-    else
-      render json: @inventory_item.errors, status: :unprocessable_entity
-    end
-  end
-
-  def destroy
-    @inventory_item = InventoryItem.find(params[:id])
-    @inventory_item.destroy
-    head :no_content
   end
 
   private
 
-  def inventory_item_params
-    params.require(:inventory_item).permit(:name, :quantity, :price, :item_type)
+  def item_params
+    params.require(:inventory_item).permit(:name, :quantity, :price, :item_type, :inventory_category_id)
+  end
+
+  def current_business_unit
+    @current_business_unit ||= current_api_user.business_units.find(params[:business_unit_id])
   end
 end

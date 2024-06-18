@@ -1,11 +1,11 @@
 # Criação de planos
-Plan.create(name: 'Trial', price: 0.0, duration: 'trial', periodicity: 'trial')
-Plan.create(name: 'Básico', price: 40.0, duration: 'monthly', periodicity: 'monthly')
-Plan.create(name: 'Básico Anual', price: 40.0, duration: 'annual', periodicity: 'annual', discount: 10.0)
-Plan.create(name: 'Médio', price: 70.0, duration: 'monthly', periodicity: 'monthly')
-Plan.create(name: 'Médio Anual', price: 70.0, duration: 'annual', periodicity: 'annual', discount: 10.0)
-Plan.create(name: 'Premium', price: 110.0, duration: 'monthly', periodicity: 'monthly')
-Plan.create(name: 'Premium Anual', price: 110.0, duration: 'annual', periodicity: 'annual', discount: 10.0)
+Plan.create(name: 'Trial', price: 0.0, duration: 'trial', periodicity: 'trial', max_business_units: 1)
+Plan.create(name: 'Básico', price: 40.0, duration: 'monthly', periodicity: 'monthly', max_business_units: 1)
+Plan.create(name: 'Básico Anual', price: 40.0, duration: 'annual', periodicity: 'annual', discount: 10.0, max_business_units: 1)
+Plan.create(name: 'Médio', price: 70.0, duration: 'monthly', periodicity: 'monthly', max_business_units: 2)
+Plan.create(name: 'Médio Anual', price: 70.0, duration: 'annual', periodicity: 'annual', discount: 10.0, max_business_units: 2)
+Plan.create(name: 'Premium', price: 110.0, duration: 'monthly', periodicity: 'monthly', max_business_units: 3)
+Plan.create(name: 'Premium Anual', price: 110.0, duration: 'annual', periodicity: 'annual', discount: 10.0, max_business_units: 3)
 
 # # Criação de usuário e unidade de negócio
 # user = User.create!(

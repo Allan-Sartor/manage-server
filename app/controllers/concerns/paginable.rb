@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Módulo: Paginable
 #
 # O módulo fornece funcionalidade para gerenciar a paginação de listagens.

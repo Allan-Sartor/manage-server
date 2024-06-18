@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Module Sortable
 #
 # Este módulo fornece funcionalidades para ordenar registros.
