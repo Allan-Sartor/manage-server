@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# app/models/business_unit.rb
-
 class BusinessUnit < ApplicationRecord
   include CnpjValidator
 
@@ -14,7 +12,10 @@ class BusinessUnit < ApplicationRecord
 
   # Callbacks
   before_validation :normalize_cnpj
-  before_create :check_business_unit_limit
+  
+  # Callbacks
+  after_create :set_initial_payment_due_date, :set_trial_period
+  before_destroy :check_for_associated_records
 
   # Validações
   validates :name, presence: true
@@ -24,9 +25,6 @@ class BusinessUnit < ApplicationRecord
   validates :legal_name, presence: true
   validates :trade_name, presence: true
   validate :cnpj_must_be_valid
-
-  # Callbacks
-  after_create :set_initial_payment_due_date, :set_trial_period
 
   def normalize_cnpj
     self.cnpj = CnpjValidator.normalize(cnpj)
@@ -122,5 +120,19 @@ class BusinessUnit < ApplicationRecord
 
   def total_transactions_by_scope(transaction_scope)
     transactions.where(transaction_scope: transaction_scope).sum(:amount)
+  end
+
+  private
+
+  def check_for_associated_records
+    if transactions.exists? || clients.exists?
+      errors.add(:base, 'Cannot delete business unit with associated transactions or clients.')
+      throw(:abort)
+    end
+
+    return unless user.business_units.count == 1
+
+    errors.add(:base, 'Cannot delete the only business unit.')
+    throw(:abort)
   end
 end

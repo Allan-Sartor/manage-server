@@ -12,12 +12,17 @@ class User < ApplicationRecord
   has_many :business_units, dependent: :destroy
 
   def can_create_business_unit?
-    business_units.count < plan.max_business_units
+    return true if business_units.empty?
+
+    current_plan = business_units.first&.plan
+    return false unless current_plan
+
+    business_units.count < current_plan.max_business_units
   end
 
   # Método para verificar se o usuário pode acessar funcionalidades avançadas
   def has_advanced_features?
-    %w[Médio Médio Anual Premium Premium Anual].include?(plan.name)
+    ['Médio', 'Médio', 'Anual', 'Premium', 'Premium', 'Anual'].include?(plan.name)
   end
 
   def active?

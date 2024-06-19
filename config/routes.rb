@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: [:show, :update]
-      resources :plans, only: [:index, :show]
+      resources :plans, only: [:index, :show, :update]
       resources :business_units
       resources :clients
       resources :transactions

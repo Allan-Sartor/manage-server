@@ -4,14 +4,14 @@ module Api
   module V1
     class BusinessUnitsController < ApplicationController
       before_action :authenticate_api_user!
+      before_action :set_business_unit, only: [:show, :update, :destroy]
 
       def index
-        @business_units = current_api_user.business_unit
+        @business_units = current_api_user.business_units.all
         render json: @business_units
       end
 
       def show
-        @business_unit = BusinessUnit.find(params[:id])
         render json: @business_unit
       end
 
@@ -30,7 +30,6 @@ module Api
       end
 
       def update
-        @business_unit = BusinessUnit.find(params[:id])
         if @business_unit.update(business_unit_params)
           render json: @business_unit
         else
@@ -39,12 +38,31 @@ module Api
       end
 
       def destroy
-        @business_unit = BusinessUnit.find(params[:id])
+        if current_api_user.business_units.count == 1
+          render json: { error: 'Cannot delete the only business unit.' }, status: :forbidden
+          return
+        end
+
+        if @business_unit.transactions.exists? || @business_unit.clients.exists?
+          render json: { error: 'Cannot delete business unit with associated transactions or clients.' }, status: :forbidden
+          return
+        end
+
         @business_unit.destroy
         head :no_content
       end
 
       private
+
+      def set_business_unit
+        @business_unit = if current_api_user.business_units.count > 1
+                           current_api_user.business_units.find(params[:id])
+                         else
+                           current_api_user.business_units.first
+                         end
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Business unit not found' }, status: :not_found
+      end
 
       def business_unit_params
         params.require(:business_unit).permit(:name, :plan_id, :cnpj, :state_registration, :municipal_registration, :legal_name, :trade_name)
