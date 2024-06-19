@@ -9,7 +9,7 @@ class Transaction < ApplicationRecord
   TRANSACTION_TYPES = ['income', 'expense', 'dividends', 'inventory_adjustment', 'product_sale'].freeze
 
   # Escopos válidos de transações
-  TRANSACTION_SCOPES = ['compra', 'venda', 'despesa', 'receita'].freeze
+  TRANSACTION_SCOPES = ['compra', 'venda', 'despesa', 'receita', 'dividends', 'inventory_adjustment'].freeze
 
   validates :amount, presence: true, numericality: { greater_than: 0 }
   validates :description, presence: true
@@ -17,6 +17,7 @@ class Transaction < ApplicationRecord
   validates :payment_type, presence: true
   validates :transaction_scope, presence: true, inclusion: { in: TRANSACTION_SCOPES }
   validates :status, presence: true, inclusion: { in: ['pending', 'paid'] }
+  validate :dividends_must_have_client
 
   # Escopos
   scope :income, -> { where(transaction_type: 'income') }
@@ -25,6 +26,7 @@ class Transaction < ApplicationRecord
   scope :venda, -> { where(transaction_scope: 'venda') }
   scope :despesa, -> { where(transaction_scope: 'despesa') }
   scope :receita, -> { where(transaction_scope: 'receita') }
+  scope :dividends, -> { where(transaction_scope: 'dividends') }
 
   # Callback para ajustar o inventário após criar uma transação
   after_create :adjust_inventory, if: -> { inventory_item.present? }
@@ -43,5 +45,11 @@ class Transaction < ApplicationRecord
     when 'compra', 'inventory_adjustment'
       inventory_item.update(quantity: inventory_item.quantity + amount)
     end
+  end
+
+  def dividends_must_have_client
+    return unless transaction_scope == 'dividends' && client.nil?
+
+    errors.add(:client, 'must be present for dividends transactions')
   end
 end
