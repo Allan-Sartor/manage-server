@@ -6,3 +6,8 @@
   monthly_payment:
     cron: "0 0 1 * *" # Executa mensalmente no primeiro dia do mês à meia-noite
     class: MonthlyPaymentJob
+
+:concurrency: 5
+:queues:
+  - default
+  - mailers
