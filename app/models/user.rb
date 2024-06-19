@@ -10,6 +10,7 @@ class User < ApplicationRecord
 
   # Associações
   has_many :business_units, dependent: :destroy
+  has_many :notifications, as: :recipient, dependent: :destroy
 
   def can_create_business_unit?
     return true if business_units.empty?

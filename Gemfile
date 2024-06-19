@@ -37,6 +37,7 @@ gem 'devise_token_auth'
 gem 'mercadopago'
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
+gem 'noticed'
 
 group :development, :test do
   gem "byebug", platforms: %i[ mri mingw x64_mingw ]

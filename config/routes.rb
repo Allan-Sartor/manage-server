@@ -20,6 +20,12 @@ Rails.application.routes.draw do
       resources :transactions
       resources :inventory_items
       resources :payments, only: [:create]
+
+      resources :notifications, only: [:index] do
+        member do
+          post :mark_as_read
+        end
+      end
     end
   end
 end

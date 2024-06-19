@@ -1,0 +1,10 @@
+<p>Olá <%= @user.name %>,</p>
+
+<p>Uma nova fatura foi gerada.</p>
+
+<p>Detalhes da Fatura:</p>
+<p><%= @notification.params[:invoice].details %></p>
+
+<p><a href="<%= @notification.url %>">Visualizar Fatura</a></p>
+
+<p>Obrigado.</p>
